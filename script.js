@@ -58,7 +58,8 @@ WebAssembly.instantiateStreaming(fetch("checkerboard.wasm"), importObject).then(
 
   drawScreen();
   console.log(memory.buffer);
-  setInterval( () => {
+  /*setInterval( () => {
     drawScreen();
-  }, 250);
+  }, 2500);
+  */
 });
