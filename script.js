@@ -36,14 +36,12 @@ WebAssembly.instantiateStreaming(fetch("checkerboard.wasm"), importObject).then(
     const screen_height = 240;
     const screen_width = 320;
 
-    result.instance.exports.drawScreen(
-      getDarkValue(),
-      getDarkValue(),
-      getDarkValue(),
-      getLightValue(),
-      getLightValue(),
-      getLightValue(),
-    );
+    const lc = parseInt(document.getElementById("line_count").value); 
+    const angle=parseInt(document.getElementById("angle").value);
+    const ll= parseInt(document.getElementById("line_length").value);
+    //console.log("hello");
+
+    result.instance.exports.drawScreen( lc, angle, ll);
 
     const bufferOffset = result.instance.exports.getScreenBufferPointer();
     const imageDataArray = wasmMemoryArray.slice(
@@ -58,8 +56,9 @@ WebAssembly.instantiateStreaming(fetch("checkerboard.wasm"), importObject).then(
 
   drawScreen();
   console.log(memory.buffer);
+  document.getElementById("make_image").addEventListener('click', drawScreen);
   /*setInterval( () => {
     drawScreen();
-  }, 2500);
-  */
+  }, 250);*/
+  
 });

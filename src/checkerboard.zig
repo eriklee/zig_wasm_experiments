@@ -93,7 +93,7 @@ fn drawLine(buffer: *Buffer, x1: i16, y1: i16, x2: i16, y2: i16, col: RGBA) void
         // make x1 < x2 to simplify things a bit
         const xstart = @maximum(@minimum(x1, x2), 0);
         const xend = @minimum(@maximum(x1, x2), buffer.width - 1);
-        const ystart = if (x1 < x2) y1 else y2;
+        const ystart = (if (x1 < x2) y1 else y2) + @floatToInt(i16, (slope * @intToFloat(f64, xstart - @minimum(x1, x2))));
         //if (x1 > x2) slope *= -1;
         // horizontalish
         var i = xstart;
@@ -111,10 +111,10 @@ fn drawLine(buffer: *Buffer, x1: i16, y1: i16, x2: i16, y2: i16, col: RGBA) void
         // make y1 < y2 to simplify things a bit
         const ystart = @maximum(@minimum(y1, y2), 0);
         const yend = @minimum(@maximum(y1, y2), buffer.height - 1);
-        consoleLogFmt("drawing a verticalish line {}->{} ranging over y vals", .{ ystart, yend });
+        //consoleLogFmt("drawing a verticalish line {}->{} ranging over y vals", .{ ystart, yend });
         slope = 1 / slope;
         const xstart = (if (y1 < y2) x1 else x2) + @floatToInt(i16, (slope * @intToFloat(f64, ystart - @minimum(y1, y2))));
-        consoleLogFmt("\tx start is {}, which is a bit further from where we wanted to begin?", .{xstart});
+        //consoleLogFmt("\tx start is {}, which is a bit further from where we wanted to begin?", .{xstart});
         //if (y1 > y2) slope *= -1;
         var i = ystart;
         while (i <= yend) {
@@ -128,45 +128,37 @@ fn drawLine(buffer: *Buffer, x1: i16, y1: i16, x2: i16, y2: i16, col: RGBA) void
     }
 }
 
-fn drawTestLineImage(buffer: *Buffer) void {
+fn drawTestLineImage(buffer: *Buffer, line_l: f64, line_count: i16, angle_delta: f64) void {
     const mid_x: i16 = @divFloor(buffer.width, 2);
     const mid_y: i16 = @divFloor(buffer.height, 2);
-    const line_l: f64 = @intToFloat(f64, @divFloor(buffer.width, 2));
 
-    consoleLogFmt("Drawing test line image:", .{});
-    var i: u8 = 00;
-    while (i < 36) {
-        const irad = @intToFloat(f64, i) / 360 * 10 * std.math.tau;
+    consoleLogFmt("Drawing test line image: lc:{} ll:{} angle:{}", .{ line_count, line_l, angle_delta });
+    var i: u8 = 0;
+    while (i < line_count) {
+        const irad = @intToFloat(f64, i) / 360 * angle_delta * std.math.tau;
         const x2 = @floatToInt(i16, line_l * std.math.cos(irad)) + mid_x;
         const y2 = @floatToInt(i16, line_l * std.math.sin(irad)) + mid_y;
         const col = RGBA{ .r = i *% 5, .g = i *% 10, .b = i *% 15, .a = 255 };
-        consoleLogFmt("\tDrawing test line ({},{}) -> ({},{})", .{ mid_x, mid_y, x2, y2 });
+        //consoleLogFmt("\tDrawing test line ({},{}) -> ({},{})", .{ mid_x, mid_y, x2, y2 });
         //drawRect(buffer, mid_x, mid_y, x2, y2, col);
         drawLine(buffer, mid_x, mid_y, x2, y2, col);
+        //drawLine2(buffer, mid_x, mid_y, x2, y2, col);
         i += 1;
     }
 }
 
 export fn drawScreen(
-    dark_value_red: u8,
-    dark_value_green: u8,
-    dark_value_blue: u8,
-    light_value_red: u8,
-    light_value_green: u8,
-    light_value_blue: u8,
+    line_count: i16,
+    angle_delta: i16,
+    line_length: i16,
 ) void {
-    //const col = RGBA{ .r = dark_value_red, .g = dark_value_green, .b = dark_value_blue, .a = 255 };
+    consoleLogFmt("draw called: lc:{} ll:{} angle:{}", .{ line_count, line_length, angle_delta });
 
-    //drawRect(&screen_buffer, light_value_blue, light_value_green, dark_value_blue, light_value_red, col);
+    // blank out the screen
+    const col = RGBA{ .r = 255, .g = 255, .b = 255, .a = 255 };
+    drawRect(&screen_buffer, 0, 0, screen_buffer.width, screen_buffer.height, col);
 
-    _ = dark_value_red;
-    _ = dark_value_blue;
-    _ = dark_value_green;
-    _ = light_value_red;
-    _ = light_value_blue;
-    _ = light_value_green;
-    //if (dark_value_blue < 128) {
-    drawTestLineImage(&screen_buffer);
+    drawTestLineImage(&screen_buffer, @intToFloat(f64, line_length), line_count, @intToFloat(f64, angle_delta));
     //}
     // for (screen_buffer) |*row, y| {
     //     for (row) |*square, x| {
