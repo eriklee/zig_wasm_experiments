@@ -97,7 +97,7 @@ fn drawLine(buffer: *Buffer, x1: i16, y1: i16, x2: i16, y2: i16, col: RGBA) void
         //if (x1 > x2) slope *= -1;
         // horizontalish
         var i = xstart;
-        consoleLogFmt("drawing a horizontalish line {}->{} ranging over y vals with slope {} from {}", .{ xstart, xend, slope, ystart });
+        //consoleLogFmt("drawing a horizontalish line {}->{} ranging over y vals with slope {} from {}", .{ xstart, xend, slope, ystart });
         while (i <= xend) {
             const yval = @floatToInt(i16, (slope * @intToFloat(f64, i - xstart))) + ystart;
             if (!(yval >= buffer.height or yval < 0)) {
@@ -112,8 +112,9 @@ fn drawLine(buffer: *Buffer, x1: i16, y1: i16, x2: i16, y2: i16, col: RGBA) void
         const ystart = @maximum(@minimum(y1, y2), 0);
         const yend = @minimum(@maximum(y1, y2), buffer.height - 1);
         consoleLogFmt("drawing a verticalish line {}->{} ranging over y vals", .{ ystart, yend });
-        const xstart = if (y1 < y2) x1 else x2;
         slope = 1 / slope;
+        const xstart = (if (y1 < y2) x1 else x2) + @floatToInt(i16, (slope * @intToFloat(f64, ystart - @minimum(y1, y2))));
+        consoleLogFmt("\tx start is {}, which is a bit further from where we wanted to begin?", .{xstart});
         //if (y1 > y2) slope *= -1;
         var i = ystart;
         while (i <= yend) {
@@ -130,11 +131,11 @@ fn drawLine(buffer: *Buffer, x1: i16, y1: i16, x2: i16, y2: i16, col: RGBA) void
 fn drawTestLineImage(buffer: *Buffer) void {
     const mid_x: i16 = @divFloor(buffer.width, 2);
     const mid_y: i16 = @divFloor(buffer.height, 2);
-    const line_l: f64 = @intToFloat(f64, @divFloor(buffer.height, 2));
+    const line_l: f64 = @intToFloat(f64, @divFloor(buffer.width, 2));
 
     consoleLogFmt("Drawing test line image:", .{});
-    var i: u8 = 0;
-    while (i < 72) {
+    var i: u8 = 00;
+    while (i < 36) {
         const irad = @intToFloat(f64, i) / 360 * 10 * std.math.tau;
         const x2 = @floatToInt(i16, line_l * std.math.cos(irad)) + mid_x;
         const y2 = @floatToInt(i16, line_l * std.math.sin(irad)) + mid_y;
