@@ -6,6 +6,15 @@ fn consoleLog(sl: []const u8) void {
     consoleLogEx(@ptrCast([*]const u8, sl), sl.len);
 }
 
+var logBuf: [4096]u8 = std.mem.zeroes([4096]u8);
+
+fn consoleLogFmt(comptime fmt: []const u8, args: anytype) void {
+    var lb = std.io.fixedBufferStream(&logBuf).writer();
+    lb.print(fmt, args) catch unreachable;
+    const written: usize = lb.context.pos;
+    consoleLogEx(@ptrCast([*]const u8, &logBuf), written);
+}
+
 const screen_height: usize = 240;
 const screen_width: usize = 320;
 
