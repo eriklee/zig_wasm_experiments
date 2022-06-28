@@ -26,11 +26,21 @@ WebAssembly.instantiateStreaming(fetch("checkerboard.wasm"), importObject).then(
     const imageData = context.createImageData(canvas.width, canvas.height);
     context.clearRect(0, 0, canvas.width, canvas.height);
 
+    /*
     const getDarkValue = () => {
       return Math.floor(Math.random() * 100);
     };
     const getLightValue = () => {
       return Math.floor(Math.random() * 127) + 127;
+    };
+    */
+
+    const setStyle = () => {
+      const sty_s = document.getElementById("Style").value;
+      var sty = 2;
+      if (sty_s == "rect") sty = 0;
+      else if (sty_s == "line") sty = 1;
+      result.instance.exports.setStyle(sty);
     };
 
     const drawScreen = () => {
@@ -40,9 +50,9 @@ WebAssembly.instantiateStreaming(fetch("checkerboard.wasm"), importObject).then(
       const lc = parseInt(document.getElementById("line_count").value);
       const angle = parseInt(document.getElementById("angle").value);
       const ll = parseInt(document.getElementById("line_length").value);
-      //console.log("hello");
+      const t = Date.now();
 
-      result.instance.exports.drawScreen(lc, angle, ll);
+      result.instance.exports.drawScreen(lc, angle, ll, t);
 
       const bufferOffset = result.instance.exports.getScreenBufferPointer();
       const imageDataArray = wasmMemoryArray.slice(
@@ -58,10 +68,21 @@ WebAssembly.instantiateStreaming(fetch("checkerboard.wasm"), importObject).then(
     drawScreen();
     console.log(memory.buffer);
     document.getElementById("make_image").addEventListener("click", drawScreen);
-    /*setInterval( () => {
-    drawScreen();
-  }, 250);
+    document.getElementById("line_length").addEventListener(
+      "change",
+      drawScreen,
+    );
+    document.getElementById("angle").addEventListener("change", drawScreen);
+    document.getElementById("line_count").addEventListener(
+      "change",
+      drawScreen,
+    );
 
+    document.getElementById("Style").addEventListener("change", setStyle);
+    setInterval( () => {
+    drawScreen();
+  }, 25);
+/*
 function getCursorPosition(canvas, event) {
     const rect = canvas.getBoundingClientRect()
     const x = event.clientX - rect.left

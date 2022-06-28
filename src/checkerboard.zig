@@ -26,6 +26,13 @@ export fn getScreenBufferPointer() [*]u8 {
     return @ptrCast([*]u8, &screen_buffer.buf);
 }
 
+const Style = enum {
+    Rect,
+    Line,
+};
+
+var style = Style.Line;
+
 const Buffer = struct {
     buf: [screen_height][screen_width]RGBA,
     height: i16,
@@ -121,27 +128,43 @@ fn drawLine(buffer: *Buffer, x1: i16, y1: i16, x2: i16, y2: i16, col: RGBA) void
     }
 }
 
-fn drawTestLineImage(buffer: *Buffer, line_l: f64, line_count: i16, angle_delta: f64) void {
+fn drawTestLineImage(buffer: *Buffer, line_l: f64, line_count: i16, angle_delta: f64, time: u32) void {
     const mid_x: i16 = @divFloor(buffer.width, 2);
     const mid_y: i16 = @divFloor(buffer.height, 2);
 
     //consoleLogFmt("Drawing test line image: lc:{} ll:{} angle:{}", .{ line_count, line_l, angle_delta });
+    const start_angle: u8 = @truncate(u5, time);
     var i: u8 = 0;
     while (i < line_count) {
-        const irad = @intToFloat(f64, i) / 360 * angle_delta * std.math.tau;
+        const irad = @intToFloat(f64, i + start_angle) / 360 * angle_delta * std.math.tau;
         const x2 = @floatToInt(i16, line_l * std.math.cos(irad)) + mid_x;
         const y2 = @floatToInt(i16, line_l * std.math.sin(irad)) + mid_y;
         const col = RGBA{ .r = i *% 5, .g = i *% 10, .b = i *% 15, .a = 255 };
-        //drawRect(buffer, mid_x, mid_y, x2, y2, col);
-        drawLine(buffer, mid_x, mid_y, x2, y2, col);
+        if (style == Style.Line) {
+            drawLine(buffer, mid_x, mid_y, x2, y2, col);
+        } else if (style == Style.Rect) {
+            drawRect(buffer, x2, y2, x2, y2, col);
+        }
         i += 1;
     }
+}
+
+export fn setStyle(
+    new_style: u8,
+) void {
+    if (new_style == 0)
+        style = Style.Rect
+    else if (new_style == 1)
+        style = Style.Line
+    else
+        consoleLogFmt("not sure what this style is: {}", .{new_style});
 }
 
 export fn drawScreen(
     line_count: i16,
     angle_delta: i16,
     line_length: i16,
+    time: u32,
 ) void {
     consoleLogFmt("draw called: lc:{} ll:{} angle:{}", .{ line_count, line_length, angle_delta });
 
@@ -149,7 +172,7 @@ export fn drawScreen(
     const col = RGBA{ .r = 255, .g = 255, .b = 255, .a = 255 };
     drawRect(&screen_buffer, 0, 0, screen_buffer.width, screen_buffer.height, col);
 
-    drawTestLineImage(&screen_buffer, @intToFloat(f64, line_length), line_count, @intToFloat(f64, angle_delta));
+    drawTestLineImage(&screen_buffer, @intToFloat(f64, line_length), line_count, @intToFloat(f64, angle_delta), time);
     //}
     // for (screen_buffer) |*row, y| {
     //     for (row) |*square, x| {

@@ -6,6 +6,7 @@
     <script src=script.js></script>
   </head>
   <body>
+    <div style="width: 1280px; float: left;">
     <canvas
         id="checkerboard"
         width="320"
@@ -13,9 +14,16 @@
         style="image-rendering: pixelated; image-rendering: crisp-edges; width: 50%;;"
         >
     </canvas>
-      <input id="line_count" type=number min=0 value=18>
-      <input id="angle" type=number min=1 max=360 value=10>
-      <input id="line_length" type=number min=1 max=360 value=50>
+    </div>
+    <div style="float: right;">
+      <p>line count:</p><input id="line_count" type=number min=0 value=18>
+      <p>angle:</p><input id="angle" type=number min=1 max=360 value=10>
+      <p>line_length:</p><input id="line_length" type=number min=1 max=360 value=50>
+      <select id="Style">
+        <option value="line">Line</option>
+        <option value="rect">Rectangle</option>
+      </select>
       <input id="make_image" type=button value="button">
+    </div>
   </body>
 </html>
