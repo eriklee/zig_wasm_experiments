@@ -94,14 +94,11 @@ fn drawLine(buffer: *Buffer, x1: i16, y1: i16, x2: i16, y2: i16, col: RGBA) void
         const xstart = @maximum(@minimum(x1, x2), 0);
         const xend = @minimum(@maximum(x1, x2), buffer.width - 1);
         const ystart = (if (x1 < x2) y1 else y2) + @floatToInt(i16, (slope * @intToFloat(f64, xstart - @minimum(x1, x2))));
-        //if (x1 > x2) slope *= -1;
         // horizontalish
         var i = xstart;
-        //consoleLogFmt("drawing a horizontalish line {}->{} ranging over y vals with slope {} from {}", .{ xstart, xend, slope, ystart });
         while (i <= xend) {
             const yval = @floatToInt(i16, (slope * @intToFloat(f64, i - xstart))) + ystart;
             if (!(yval >= buffer.height or yval < 0)) {
-                //consoleLogFmt("drawing a dot at ({},{})", .{ i, yval });
                 buffer.buf[@intCast(usize, yval)][@intCast(usize, i)] = col;
             }
             i += 1;
@@ -111,16 +108,12 @@ fn drawLine(buffer: *Buffer, x1: i16, y1: i16, x2: i16, y2: i16, col: RGBA) void
         // make y1 < y2 to simplify things a bit
         const ystart = @maximum(@minimum(y1, y2), 0);
         const yend = @minimum(@maximum(y1, y2), buffer.height - 1);
-        //consoleLogFmt("drawing a verticalish line {}->{} ranging over y vals", .{ ystart, yend });
         slope = 1 / slope;
         const xstart = (if (y1 < y2) x1 else x2) + @floatToInt(i16, (slope * @intToFloat(f64, ystart - @minimum(y1, y2))));
-        //consoleLogFmt("\tx start is {}, which is a bit further from where we wanted to begin?", .{xstart});
-        //if (y1 > y2) slope *= -1;
         var i = ystart;
         while (i <= yend) {
             const xval = @floatToInt(i16, (slope * @intToFloat(f64, i - ystart))) + xstart;
             if (!(xval >= buffer.width or xval < 0)) {
-                //consoleLogFmt("drawing a dot at ({},{})", .{ xval, i });
                 buffer.buf[@intCast(usize, i)][@intCast(usize, xval)] = col;
             }
             i += 1;
@@ -132,17 +125,15 @@ fn drawTestLineImage(buffer: *Buffer, line_l: f64, line_count: i16, angle_delta:
     const mid_x: i16 = @divFloor(buffer.width, 2);
     const mid_y: i16 = @divFloor(buffer.height, 2);
 
-    consoleLogFmt("Drawing test line image: lc:{} ll:{} angle:{}", .{ line_count, line_l, angle_delta });
+    //consoleLogFmt("Drawing test line image: lc:{} ll:{} angle:{}", .{ line_count, line_l, angle_delta });
     var i: u8 = 0;
     while (i < line_count) {
         const irad = @intToFloat(f64, i) / 360 * angle_delta * std.math.tau;
         const x2 = @floatToInt(i16, line_l * std.math.cos(irad)) + mid_x;
         const y2 = @floatToInt(i16, line_l * std.math.sin(irad)) + mid_y;
         const col = RGBA{ .r = i *% 5, .g = i *% 10, .b = i *% 15, .a = 255 };
-        //consoleLogFmt("\tDrawing test line ({},{}) -> ({},{})", .{ mid_x, mid_y, x2, y2 });
         //drawRect(buffer, mid_x, mid_y, x2, y2, col);
         drawLine(buffer, mid_x, mid_y, x2, y2, col);
-        //drawLine2(buffer, mid_x, mid_y, x2, y2, col);
         i += 1;
     }
 }
