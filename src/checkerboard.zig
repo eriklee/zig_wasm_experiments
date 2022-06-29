@@ -133,7 +133,7 @@ fn drawTestLineImage(buffer: *Buffer, line_l: f64, line_count: i16, angle_delta:
     const mid_y: i16 = @divFloor(buffer.height, 2);
 
     //consoleLogFmt("Drawing test line image: lc:{} ll:{} angle:{}", .{ line_count, line_l, angle_delta });
-    const start_angle: u8 = @truncate(u5, time);
+    const start_angle: u8 = @truncate(u5, @divFloor(time, 16));
     var i: u8 = 0;
     while (i < line_count) {
         const irad = @intToFloat(f64, i + start_angle) / 360 * angle_delta * std.math.tau;
