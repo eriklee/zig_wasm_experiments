@@ -1,5 +1,11 @@
 const std = @import("std");
 
+const Buffer = @import("buffer.zig").Buffer;
+const RGBA = @import("buffer.zig").RGBA;
+
+const screen_height = @import("buffer.zig").screen_height;
+const screen_width = @import("buffer.zig").screen_width;
+
 extern fn consoleLogEx(location: [*]const u8, size: usize) void;
 
 fn consoleLog(sl: []const u8) void {
@@ -14,9 +20,6 @@ fn consoleLogFmt(comptime fmt: []const u8, args: anytype) void {
     const written: usize = lb.context.pos;
     consoleLogEx(@ptrCast([*]const u8, &logBuf), written);
 }
-
-const screen_height: usize = 240;
-const screen_width: usize = 320;
 
 // pixels where each pixel is 4 bytes (rgba)
 var screen_buffer = Buffer{ .buf = std.mem.zeroes([screen_height][screen_width]RGBA), .height = screen_height, .width = screen_width };
@@ -33,19 +36,7 @@ const Style = enum {
 
 var style = Style.Line;
 
-const Buffer = struct {
-    buf: [screen_height][screen_width]RGBA,
-    height: i16,
-    width: i16,
-};
-
-const RGBA = struct {
-    r: u8,
-    g: u8,
-    b: u8,
-    a: u8,
-};
-
+// TODO: move this stuff to buffer.zig
 fn drawRect(buffer: *Buffer, x: i16, y: i16, w: i16, h: i16, col: RGBA) void {
     var i = @maximum(0, x);
     while (i < @minimum(x + w, buffer.width)) {
@@ -166,13 +157,18 @@ export fn drawScreen(
     line_length: i16,
     time: u32,
 ) void {
-    consoleLogFmt("draw called: lc:{} ll:{} angle:{}", .{ line_count, line_length, angle_delta });
-
+    //consoleLogFmt("draw called: lc:{} ll:{} angle:{}", .{ line_count, line_length, angle_delta });
+    _ = line_count;
+    _ = angle_delta;
+    _ = line_length;
+    _ = time;
     // blank out the screen
-    const col = RGBA{ .r = 255, .g = 255, .b = 255, .a = 255 };
-    drawRect(&screen_buffer, 0, 0, screen_buffer.width, screen_buffer.height, col);
+    //const col = RGBA{ .r = 255, .g = 255, .b = 255, .a = 255 };
+    //drawRect(&screen_buffer, 0, 0, screen_buffer.width, screen_buffer.height, col);
+    const rt = @import("rt_main.zig");
+    rt.do_render(&screen_buffer);
 
-    drawTestLineImage(&screen_buffer, @intToFloat(f64, line_length), line_count, @intToFloat(f64, angle_delta), time);
+    //drawTestLineImage(&screen_buffer, @intToFloat(f64, line_length), line_count, @intToFloat(f64, angle_delta), time);
     //}
     // for (screen_buffer) |*row, y| {
     //     for (row) |*square, x| {

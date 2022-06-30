@@ -78,11 +78,11 @@ WebAssembly.instantiateStreaming(fetch("checkerboard.wasm"), importObject).then(
       drawScreen,
     );
 
+/*
     document.getElementById("Style").addEventListener("change", setStyle);
     setInterval( () => {
     drawScreen();
   }, 16);
-/*
 function getCursorPosition(canvas, event) {
     const rect = canvas.getBoundingClientRect()
     const x = event.clientX - rect.left
